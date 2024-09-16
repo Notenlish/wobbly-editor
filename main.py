@@ -10,7 +10,7 @@ import zengl_extras
 
 from constants import SIZE, CLEAR_SIZE, PAINT_SIZE
 from ogl_manager import OpenGLManager
-from ogl_drawer import OpenGLDrawer
+from ogl_drawer import OpenGLCircleDrawer
 
 zengl_extras.init()
 
@@ -21,7 +21,9 @@ class App:
         self.screen = pygame.display.set_mode(SIZE, pygame.OPENGL | pygame.DOUBLEBUF)
         self.ui = UI()
         self.ogl_manager = OpenGLManager()
-        self.ogl_drawer = OpenGLDrawer(self.ogl_manager.ctx)
+        self.ogl_drawer = OpenGLCircleDrawer(
+            self.ogl_manager.ctx, self.ogl_manager.mask_img, (64, 64)
+        )
 
         self.drawable = pygame.Surface(SIZE)
         self.drawable.fill("white")
@@ -54,10 +56,6 @@ class App:
         self.frame_count += 1
         self.since_start += self.dt
         self.ogl_manager.update_values(self.since_start)
-
-        self.ogl_drawer.draw_circle(
-            self.ogl_manager.mask_img, pygame.mouse.get_pos(), "red", 10, 0
-        )
 
         if not self.last_point:
             self.last_point = pygame.mouse.get_pos()

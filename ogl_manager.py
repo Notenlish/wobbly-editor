@@ -5,9 +5,9 @@ import struct
 
 class OpenGLManager:
     def __init__(self):
-        with open("assets/shader/vert.glsl", "r") as f:
+        with open("assets/shader/default.vert", "r") as f:
             vert_src = f.read()
-        with open("assets/shader/frag.glsl", "r") as f:
+        with open("assets/shader/default.frag", "r") as f:
             frag_src = f.read()
 
         self.ctx = zengl.context()
