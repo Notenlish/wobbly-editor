@@ -4,6 +4,7 @@ import pygame
 import numpy as np
 
 from constants import SIZE
+import zengl_extras
 
 type DrawColor = str | tuple[int, int, int] | pygame.Color
 type DrawRadius = float | int
@@ -21,7 +22,7 @@ class OpenGLDrawer:
         tex_size: tuple[int, int],
         tex_count: int,
         obj_count: int = 16,
-        byte_per_float: int = 2,
+        byte_per_float: int = 4,
     ) -> None:
         self.ctx = ctx
         self.img = img  # img to render to
@@ -49,10 +50,8 @@ class OpenGLDrawer:
     def __set_texarray(self): ...
 
     def __set_inst_buf(self):
-        self.instance_buffer = self.ctx.buffer(
-            size=self.obj_count * 4 * self.byte_per_float
-        )
-        print(self.obj_count * 4 * self.byte_per_float)
+        # 16 bytes per obj(4 floats)
+        self.instance_buffer = self.ctx.buffer(size=self.obj_count * 16)
         # each instanced object is a vec4(xy = pos, z = rot, w = texture_id)
 
     def __load_images(self): ...
@@ -68,7 +67,7 @@ class OpenGLCircleDrawer(OpenGLDrawer):
         obj_count: int = 16,
     ) -> None:
         super().__init__(
-            ctx, img, "circle", tex_size, tex_count, obj_count, byte_per_float=2
+            ctx, img, "circle", tex_size, tex_count, obj_count, byte_per_float=4
         )
 
         self.instances = np.array(
@@ -81,8 +80,9 @@ class OpenGLCircleDrawer(OpenGLDrawer):
             "f4",
         ).T.copy()  # why is there .T here?
 
+        print("Buffer sizes of instance buffer and instances np array.")
         print(self.instance_buffer.size)
-        print(self.instances.size)
+        print(len(self.instances.tobytes()))
 
         self.instance_buffer.write(self.instances)
 
@@ -92,6 +92,28 @@ class OpenGLCircleDrawer(OpenGLDrawer):
             includes={
                 "screen_size": f"const vec2 screen_size = vec2({SIZE[0]},{SIZE[1]});"
             },
+            layout=[{"name": "Texture", "binding": 0}],
+            resources=[
+                {
+                    "type": "sampler",
+                    "binding": 0,
+                    "image": self.img,
+                    "wrap_x": "clamp_to_edge",
+                    "wrap_y": "clamp_to_edge",
+                }
+            ],
+            blend={
+                "enable": True,
+                # this does some kind of blending, but idk what it is
+                "src_color": "src_alpha",
+                "dst_color": "one_minus_src_alpha",
+            },
+            framebuffer=[self.img],
+            topology="triangle_strip",
+            vertex_count=4,
+            # what is /i ?
+            vertex_buffers=zengl.bind(self.instance_buffer, "4f /i", 0),
+            instance_count=self.obj_count,
         )
 
     def __load_images(self):

@@ -22,7 +22,11 @@ class App:
         self.ui = UI()
         self.ogl_manager = OpenGLManager()
         self.ogl_drawer = OpenGLCircleDrawer(
-            self.ogl_manager.ctx, self.ogl_manager.mask_img, (64, 64)
+            self.ogl_manager.ctx,
+            self.ogl_manager.mask_img,
+            (64, 64),
+            tex_count=2,
+            obj_count=100,
         )
 
         self.drawable = pygame.Surface(SIZE)

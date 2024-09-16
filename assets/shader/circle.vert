@@ -19,7 +19,7 @@ layout (location = 0) in vec4 in_attributes;
 out vec3 v_texcoord;  // stores uv + the index of which texture2D to sample
 
 void main() {
-    vec2 pos = in_attributes.xy;
+    vec2 position = in_attributes.xy;
     float rotation = in_attributes.z;
     float texture = in_attributes.w;
     mat2 rot = mat2(cos(rotation), -sin(rotation), sin(rotation), cos(rotation));
