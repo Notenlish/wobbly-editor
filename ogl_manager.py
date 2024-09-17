@@ -2,6 +2,8 @@ import zengl
 from constants import SIZE
 import struct
 
+from ogl_drawer import OpenGLCircleDrawer
+
 
 class OpenGLManager:
     def __init__(self):
@@ -58,9 +60,22 @@ class OpenGLManager:
         )
 
         self.since_start = 0
+        self.set_drawers()
+
+    def set_drawers(self):
+        self.circle_drawer = OpenGLCircleDrawer(
+            self.ctx,
+            self.mask_img,
+            (64, 64),
+            tex_count=2,
+            obj_count=100,
+        )
 
     def new_frame(self):
         self.ctx.new_frame(clear=False)
+
+        self.circle_drawer.render()
+        self.circle_drawer.img.blit(self.mask_img)
 
     def end_frame(self):
         self.pipeline.render()

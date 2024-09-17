@@ -21,13 +21,6 @@ class App:
         self.screen = pygame.display.set_mode(SIZE, pygame.OPENGL | pygame.DOUBLEBUF)
         self.ui = UI()
         self.ogl_manager = OpenGLManager()
-        self.ogl_drawer = OpenGLCircleDrawer(
-            self.ogl_manager.ctx,
-            self.ogl_manager.mask_img,
-            (64, 64),
-            tex_count=2,
-            obj_count=100,
-        )
 
         self.drawable = pygame.Surface(SIZE)
         self.drawable.fill("white")

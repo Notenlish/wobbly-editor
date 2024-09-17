@@ -36,25 +36,29 @@ class OpenGLDrawer:
             f"name: {name} tex_size:{tex_size}  tex_count:{tex_count}  obj_count:{obj_count}  byte_per_float:{byte_per_float}"
         )
 
-        self.__load_shader_src()
-        self.__load_images()
-        self.__set_texarray()
-        self.__set_inst_buf()
+        self._load_shader_src()
+        self._load_images()
+        self._set_texarray()
+        self._set_inst_buf()
 
-    def __load_shader_src(self):
+        self._setup()
+
+    def _setup(self): ...
+
+    def _load_shader_src(self):
         with open(f"assets/shader/{self.name}.frag", "r") as f:
             self.frag_src = f.read()
         with open(f"assets/shader/{self.name}.vert", "r") as f:
             self.vert_src = f.read()
 
-    def __set_texarray(self): ...
+    def _set_texarray(self): ...
 
-    def __set_inst_buf(self):
+    def _set_inst_buf(self):
         # 16 bytes per obj(4 floats)
         self.instance_buffer = self.ctx.buffer(size=self.obj_count * 16)
         # each instanced object is a vec4(xy = pos, z = rot, w = texture_id)
 
-    def __load_images(self): ...
+    def _load_images(self): ...
 
 
 class OpenGLCircleDrawer(OpenGLDrawer):
@@ -70,19 +74,21 @@ class OpenGLCircleDrawer(OpenGLDrawer):
             ctx, img, "circle", tex_size, tex_count, obj_count, byte_per_float=4
         )
 
+    def _setup(self):
+        print("WWWWWWWWWWWWWWWWWWW")
         self.instances = np.array(
             [
-                np.random.uniform(0.0, SIZE[0], obj_count),
-                np.random.uniform(0.0, SIZE[1], obj_count),
-                np.random.uniform(0.0, np.pi, obj_count),
-                np.random.uniform(0, tex_count, obj_count),
+                np.random.uniform(0.0, SIZE[0], self.obj_count),
+                np.random.uniform(0.0, SIZE[1], self.obj_count),
+                np.random.uniform(0.0, np.pi, self.obj_count),
+                np.random.uniform(0, self.tex_count, self.obj_count),
             ],
             "f4",
         ).T.copy()  # why is there .T here?
 
-        print("Buffer sizes of instance buffer and instances np array.")
-        print(self.instance_buffer.size)
-        print(len(self.instances.tobytes()))
+        # print("Buffer sizes of instance buffer and instances np array.")
+        # print(self.instance_buffer.size)
+        # print(len(self.instances.tobytes()))
 
         self.instance_buffer.write(self.instances)
 
@@ -116,35 +122,47 @@ class OpenGLCircleDrawer(OpenGLDrawer):
             instance_count=self.obj_count,
         )
 
-    def __load_images(self):
-        self.pixels = []
+    def render(self):
+        self.instances[:, 0] = (
+            self.instances[:, 0] - np.sin(self.instances[:, 2]) * 0.2
+        ) % SIZE[0]
+        self.instances[:, 1] = (
+            self.instances[:, 1] - np.cos(self.instances[:, 2]) * 0.2
+        ) % SIZE[1]
+        self.instances[:, 2] += 0.02
+        self.instance_buffer.write(self.instances)
+        # self.img.clear()
+        self.pipeline.render()
+
+    def _load_images(self):
+        self.pixels: bytes = b""
         for i in range(self.tex_count):
-            surf = pygame.Surface(self.tex_size, pygame.SRCALPHA)
+            surf = pygame.Surface(self.tex_size, pygame.SRCALPHA).convert_alpha()
+            surf.fill((255, 255, 0, 255))
 
             color = [(255 // (self.tex_count - 1)) * i] * 3
             center = (self.tex_size[0] // 2, self.tex_size[1] // 2)
             rad = self.tex_size[0] // 2
 
-            pygame.draw.circle(
-                surf,
-                color,
-                center,
-                rad,
-            )
+            pygame.image.save(surf, f"{i}.png")
 
-            self.pixels.append(
-                self.ctx.image(
-                    self.tex_size,
-                    "rgba8unorm",
-                    pygame.image.tobytes(
-                        surf,
-                        "RGBA",
-                        flipped=True,
-                    ),
+            if 0:
+                pygame.draw.circle(
+                    surf,
+                    color,
+                    center,
+                    rad,
                 )
+
+            self.pixels += pygame.image.tobytes(
+                surf,
+                "RGBA",
+                flipped=True,
             )
 
-    def __set_texarray(self):
+    def _set_texarray(self):
+        print(len(self.pixels))
+        # print(self.pixels)
         self.texture = self.ctx.image(
             self.tex_size, "rgba8unorm", self.pixels, array=self.tex_count
         )
