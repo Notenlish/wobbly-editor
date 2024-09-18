@@ -135,33 +135,35 @@ class OpenGLCircleDrawer(OpenGLDrawer):
         self.pipeline.render()
 
     def _load_images(self):
-        self.pixels: bytes = b""
+        byte_arr: list[bytes] = []
         for i in range(self.tex_count):
-            surf = pygame.Surface(self.tex_size, pygame.SRCALPHA).convert_alpha()
-            surf.fill((255, 255, 0, 255))
+            surf = pygame.Surface(self.tex_size, pygame.SRCALPHA)
+            surf.fill((255, 255, 255, 255))
 
             color = [(255 // (self.tex_count - 1)) * i] * 3
             center = (self.tex_size[0] // 2, self.tex_size[1] // 2)
             rad = self.tex_size[0] // 2
 
-            pygame.image.save(surf, f"{i}.png")
-
-            if 0:
-                pygame.draw.circle(
-                    surf,
-                    color,
-                    center,
-                    rad,
-                )
-
-            self.pixels += pygame.image.tobytes(
+            pygame.draw.circle(
                 surf,
-                "RGBA",
-                flipped=True,
+                color,
+                center,
+                rad,
             )
 
+            byte_arr.append(
+                pygame.image.tobytes(
+                    surf,
+                    "RGBA",
+                    flipped=True,
+                )
+            )
+        self.pixels = b"".join(byte_arr)
+        self.pixels = np.array(
+            [255, 255, 255, 255] * (32768 // 4), dtype=np.dtypes.UInt8DType
+        )
+
     def _set_texarray(self):
-        print(len(self.pixels))
         # print(self.pixels)
         self.texture = self.ctx.image(
             self.tex_size, "rgba8unorm", self.pixels, array=self.tex_count

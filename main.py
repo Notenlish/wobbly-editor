@@ -18,7 +18,9 @@ zengl_extras.init()
 class App:
     def __init__(self) -> None:
         pygame.init()
-        self.screen = pygame.display.set_mode(SIZE, pygame.OPENGL | pygame.DOUBLEBUF)
+        self.screen = pygame.display.set_mode(
+            SIZE, pygame.OPENGL | pygame.DOUBLEBUF
+        )
         self.ui = UI()
         self.ogl_manager = OpenGLManager()
 
