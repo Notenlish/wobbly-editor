@@ -1,6 +1,6 @@
 # wobbly-editor
 
-possible names: `Doodle Frames`, `HandDrawnFX`, `WobbleFX`, `wobble swobble`, `Wobbler`, `Wobbledit`, `Wobble Paint`
+possible names: `Doodle Frames`, `HandDrawnFX`, `WobbleFX`, `wobble swobble`, `Wobbler`, `Wobbledit`, `Wobble Paint`, `Wobble Frames`
 
 # How to develop
 
