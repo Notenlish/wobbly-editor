@@ -3,14 +3,13 @@ from typing import Literal
 
 import pygame
 import zengl  # noqa
-from ui import UI
 
 # TODO: dont import if web
 import zengl_extras
 
 from constants import SIZE, CLEAR_SIZE, PAINT_SIZE
 from ogl_manager import OpenGLManager
-from ogl_drawer import OpenGLCircleDrawer
+from ui import UI
 
 zengl_extras.init()
 
@@ -18,11 +17,9 @@ zengl_extras.init()
 class App:
     def __init__(self) -> None:
         pygame.init()
-        self.screen = pygame.display.set_mode(
-            SIZE, pygame.OPENGL | pygame.DOUBLEBUF
-        )
-        self.ui = UI()
+        self.screen = pygame.display.set_mode(SIZE, pygame.OPENGL | pygame.DOUBLEBUF)
         self.ogl_manager = OpenGLManager()
+        self.ui = UI(self.ogl_manager.ctx)
 
         self.drawable = pygame.Surface(SIZE)
         self.drawable.fill("white")
@@ -95,6 +92,9 @@ class App:
     def draw(self):
         # pygame
         self.screen.fill("white")
+        
+        self.ui.render()
+        self.ui.img.blit(self.ogl_manager.mask_img)
 
         # drawable = black or white surf
 

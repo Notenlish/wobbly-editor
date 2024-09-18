@@ -7,9 +7,9 @@ from ogl_drawer import OpenGLCircleDrawer
 
 class OpenGLManager:
     def __init__(self):
-        with open("assets/shader/default.vert", "r") as f:
+        with open("assets/shader/wobble.vert", "r") as f:
             vert_src = f.read()
-        with open("assets/shader/default.frag", "r") as f:
+        with open("assets/shader/wobble.frag", "r") as f:
             frag_src = f.read()
 
         self.ctx = zengl.context()
@@ -53,7 +53,7 @@ class OpenGLManager:
                 "time": 0.0,
                 # prob should use vec4 bcuz weird drivers but ill fix only if theres a problem with this
                 "screen_size": SIZE,
-                "effect_size": 1.0,
+                "effect_size": 0.0,
                 "move_mul": 3.0,
                 "some_mul": 50.0,
             },
@@ -73,9 +73,8 @@ class OpenGLManager:
 
     def new_frame(self):
         self.ctx.new_frame(clear=False)
-
-        self.circle_drawer.render()
-        self.circle_drawer.img.blit(self.mask_img)
+        # self.circle_drawer.render()
+        # self.circle_drawer.img.blit(self.mask_img)
 
     def end_frame(self):
         self.pipeline.render()

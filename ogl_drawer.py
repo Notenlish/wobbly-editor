@@ -1,10 +1,9 @@
 import zengl
-from typing import Literal, TypedDict, Callable
+from typing import Literal
 import pygame
 import numpy as np
 
 from constants import SIZE
-import zengl_extras
 
 type DrawColor = str | tuple[int, int, int] | pygame.Color
 type DrawRadius = float | int
