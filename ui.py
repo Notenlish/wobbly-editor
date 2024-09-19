@@ -15,29 +15,50 @@ class UI:
         self._init_structure()
 
     def _init_structure(self):
-        sliders = [mili.Slider(False, True, [20, 20]) for _ in range(3)]
+        sliders = [mili.Slider(False, True, [25, 25]) for _ in range(3)]
 
         m = self.mili
-        m.start()
-        with m.begin(SCREEN_RECT, {}) as main:  # noqa
+        m.start({"padx":0})
+        with m.begin(SCREEN_RECT, {"padx": 0, "pady": 2}) as main:  # noqa
             with m.begin(
-                None, style={"fillx": True, "filly": "40", "axis": "x"}
+                None, style={"fillx": True, "filly": "25", "axis": "x"}
             ) as top:  # noqa
                 with m.begin(None, {"fillx": "25", "filly": "100"}) as file_drop_area:  # noqa
                     m.rect({"color": "green", "padx": "10", "pady": "10"})
 
                 with m.begin(
-                    None, {"fillx": "25", "filly": "100", "axis": "y"}
+                    None,
+                    {"fillx": "25", "filly": "100", "axis": "y", "padx": 0, "pady": 0},
                 ) as preset_rows_container:  # noqa
                     for r in range(2):
                         with m.begin(
-                            None, {"fillx": "100", "filly": "50", "axis": "x"}
+                            None,
+                            {
+                                "fillx": "100",
+                                "filly": "50",
+                                "axis": "x",
+                                "padx": 0,
+                                "pady": 0,
+                            },
                         ) as preset_row:  # noqa
                             for i in range(2):
                                 with m.begin(
-                                    None, {"fillx": "50", "filly": "100"}
+                                    None,
+                                    {
+                                        "fillx": "50",
+                                        "filly": "100",
+                                        "padx": 0,
+                                        "pady": 0,
+                                    },
                                 ) as preset:
-                                    m.rect({"padx": "10", "pady": "10", "color": "red"})
+                                    m.rect(
+                                        {
+                                            "color": "red",
+                                            "padx": 15,
+                                            "pady": 2,
+                                            "border_radius": 4,
+                                        }
+                                    )
 
                 with m.begin(
                     None, {"fillx": "50", "filly": "100"}, get_data=True
@@ -45,15 +66,42 @@ class UI:
                     slider_h = f"{100 / len(sliders)}"
                     for slider in sliders:
                         with m.begin(
-                            None, {"fillx": "100", "filly": slider_h}
+                            None,
+                            {
+                                "fillx": "100",
+                                "filly": slider_h,
+                            },
+                            get_data=True,
                         ) as slider_container:
                             slider.update_area(slider_container)  # type:ignore
-                            # will be fixed in the next mili ui release
-                            # check here: https://github.com/damusss/mili/blob/main/guide/utility.md
-                            
+                            m.rect({"color": (40,) * 3})
+                            m.rect({"color": (80,) * 3, "outline": 1})
 
-            with m.begin(None, style={"fillx": True, "filly": "60"}) as bottom:  # noqa
-                with m.begin(None, style={"fillx": "80", "filly": "100"}) as preview_c:  # noqa
+                            handle = m.element(slider.handle_rect, slider.handle_style)
+                            if handle:  # used for indentation
+                                slider.update_handle(handle)
+
+                                m.rect({"color": (50, 50, 50), "border_radius": 100})
+
+                                m.rect(
+                                    {
+                                        "color": (70, 70, 70),
+                                        "outline": 2,
+                                        "border_radius": 100,
+                                    }
+                                )
+
+                                if slider.moved:
+                                    print(slider.value)
+                                    slider.valuex += slider.value.x
+
+            with m.begin(
+                None,
+                style={"fillx": True, "filly": "75", "axis": "x"},
+                header="",
+                get_data=False,
+            ) as bottom:  # noqa
+                with m.begin(None, style={"fillx": "80", "filly": "100"}) as preview_c:  # noqa F841
                     m.rect({"color": "blue"})
                 with m.begin(None, style={"fillx": "20", "filly": "100"}) as exports:  # noqa
                     with m.begin(
@@ -67,8 +115,9 @@ class UI:
 
     def render(self):
         if self.changed:
+            self._init_structure()
             self._draw()
-            self.changed = False
+            self.changed = True
             self.img.write(pygame.image.tobytes(self.surface, "RGBA", flipped=True))
 
     def _draw(self):

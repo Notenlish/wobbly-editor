@@ -161,9 +161,14 @@ class OpenGLCircleDrawer(OpenGLDrawer):
         self.pixels = np.array(
             [255, 255, 255, 255] * (32768 // 4), dtype=np.dtypes.UInt8DType
         )
-
-    def _set_texarray(self):
-        # print(self.pixels)
+        print("Why")
         self.texture = self.ctx.image(
             self.tex_size, "rgba8unorm", self.pixels, array=self.tex_count
         )
+        print(self.pixels)
+        self.texture.write(self.pixels.tobytes())  # you need to send pixels to the gpu using this.
+
+    def _set_texarray(self):
+        # print(self.pixels)
+        ...
+        
