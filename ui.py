@@ -18,8 +18,8 @@ class UI:
         sliders = [mili.Slider(False, True, [25, 25]) for _ in range(3)]
 
         m = self.mili
-        m.start({"padx":0})
-        with m.begin(SCREEN_RECT, {"padx": 0, "pady": 2}) as main:  # noqa
+        m.start({"padx": 0})
+        with m.begin(SCREEN_RECT, {"padx": 0, "pady": 2}) as main:
             with m.begin(
                 None, style={"fillx": True, "filly": "25", "axis": "x"}
             ) as top:  # noqa
@@ -61,16 +61,17 @@ class UI:
                                     )
 
                 with m.begin(
-                    None, {"fillx": "50", "filly": "100"}, get_data=True
+                    None,
+                    {"fillx": "50", "filly": "100", "clip_draw": False},
+                    get_data=True,
                 ) as sliders_container:
                     slider_h = f"{100 / len(sliders)}"
                     for slider in sliders:
                         with m.begin(
                             None,
-                            {
-                                "fillx": "100",
-                                "filly": slider_h,
-                            },
+                            {"fillx": "100", "filly": slider_h, "clip_draw": False}
+                            | mili.CENTER
+                            | slider.area_style,
                             get_data=True,
                         ) as slider_container:
                             slider.update_area(slider_container)  # type:ignore
@@ -81,11 +82,11 @@ class UI:
                             if handle:  # used for indentation
                                 slider.update_handle(handle)
 
-                                m.rect({"color": (50, 50, 50), "border_radius": 100})
+                                m.rect({"color": (50,) * 3, "border_radius": 100})
 
                                 m.rect(
                                     {
-                                        "color": (70, 70, 70),
+                                        "color": (70,) * 3,
                                         "outline": 2,
                                         "border_radius": 100,
                                     }

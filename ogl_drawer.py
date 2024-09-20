@@ -102,7 +102,8 @@ class OpenGLCircleDrawer(OpenGLDrawer):
                 {
                     "type": "sampler",
                     "binding": 0,
-                    "image": self.img,
+                    # I hit a roadblock for 3 days bcuz I wrote self.img instead of self.texture here...
+                    "image": self.texture,
                     "wrap_x": "clamp_to_edge",
                     "wrap_y": "clamp_to_edge",
                 }
@@ -122,12 +123,6 @@ class OpenGLCircleDrawer(OpenGLDrawer):
         )
 
     def render(self):
-        self.instances[:, 0] = (
-            self.instances[:, 0] - np.sin(self.instances[:, 2]) * 0.2
-        ) % SIZE[0]
-        self.instances[:, 1] = (
-            self.instances[:, 1] - np.cos(self.instances[:, 2]) * 0.2
-        ) % SIZE[1]
         self.instances[:, 2] += 0.02
         self.instance_buffer.write(self.instances)
         # self.img.clear()
@@ -137,7 +132,7 @@ class OpenGLCircleDrawer(OpenGLDrawer):
         byte_arr: list[bytes] = []
         for i in range(self.tex_count):
             surf = pygame.Surface(self.tex_size, pygame.SRCALPHA)
-            surf.fill((255, 255, 255, 255))
+            # surf.fill((125, 0, 125, 255))
 
             color = [(255 // (self.tex_count - 1)) * i] * 3
             center = (self.tex_size[0] // 2, self.tex_size[1] // 2)
@@ -158,17 +153,17 @@ class OpenGLCircleDrawer(OpenGLDrawer):
                 )
             )
         self.pixels = b"".join(byte_arr)
-        self.pixels = np.array(
-            [255, 255, 255, 255] * (32768 // 4), dtype=np.dtypes.UInt8DType
-        )
         print("Why")
         self.texture = self.ctx.image(
-            self.tex_size, "rgba8unorm", self.pixels, array=self.tex_count
+            size=self.tex_size,
+            format="rgba8unorm",
+            data=self.pixels,
+            array=self.tex_count,
         )
-        print(self.pixels)
-        self.texture.write(self.pixels.tobytes())  # you need to send pixels to the gpu using this.
+        self.texture.write(
+            self.pixels
+        )  # you need to send pixels to the gpu using this.
 
     def _set_texarray(self):
         # print(self.pixels)
         ...
-        

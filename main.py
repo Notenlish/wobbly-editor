@@ -97,7 +97,8 @@ class App:
         self.ui.img.blit(self.ogl_manager.mask_img)
 
         # drawable = black or white surf
-
+        #self.ogl_manager.mask_img
+        
         # zengl
         self.ogl_manager.new_frame()
         self.ogl_manager.end_frame()

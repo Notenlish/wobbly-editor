@@ -74,6 +74,7 @@ class OpenGLManager:
     def new_frame(self):
         self.ctx.new_frame(clear=False)
         # self.circle_drawer.render()
+        # self.circle_drawer.texture.blit(self.mask_img)
         # self.circle_drawer.img.blit(self.mask_img)
 
     def end_frame(self):
