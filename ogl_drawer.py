@@ -132,7 +132,6 @@ class OpenGLCircleDrawer(OpenGLDrawer):
         byte_arr: list[bytes] = []
         for i in range(self.tex_count):
             surf = pygame.Surface(self.tex_size, pygame.SRCALPHA)
-            # surf.fill((125, 0, 125, 255))
 
             color = [(255 // (self.tex_count - 1)) * i] * 3
             center = (self.tex_size[0] // 2, self.tex_size[1] // 2)
@@ -142,7 +141,10 @@ class OpenGLCircleDrawer(OpenGLDrawer):
                 surf,
                 color,
                 center,
-                rad,
+                (
+                    # if I dont do this, some parts of the drawn circle dont have a border
+                    rad - 1
+                ),
             )
 
             byte_arr.append(
@@ -153,16 +155,16 @@ class OpenGLCircleDrawer(OpenGLDrawer):
                 )
             )
         self.pixels = b"".join(byte_arr)
-        print("Why")
         self.texture = self.ctx.image(
             size=self.tex_size,
             format="rgba8unorm",
             data=self.pixels,
             array=self.tex_count,
         )
-        self.texture.write(
-            self.pixels
-        )  # you need to send pixels to the gpu using this.
+        # no need to call this, we will use the initial data anyways
+        # self.texture.write(
+        #    self.pixels
+        # )  # you need to send pixels to the gpu using this.
 
     def _set_texarray(self):
         # print(self.pixels)
