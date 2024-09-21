@@ -1,5 +1,4 @@
 from pathlib import Path
-from xml.etree.ElementTree import QName
 import pygame
 import zengl
 import struct
