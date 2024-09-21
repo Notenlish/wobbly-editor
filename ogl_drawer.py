@@ -5,6 +5,8 @@ import numpy as np
 
 from constants import SIZE
 
+from utils import load_frag_shader, load_vertex_shader
+
 type DrawColor = str | tuple[int, int, int] | pygame.Color
 type DrawRadius = float | int
 type DrawOutlineWidth = int
@@ -45,10 +47,8 @@ class OpenGLDrawer:
     def _setup(self): ...
 
     def _load_shader_src(self):
-        with open(f"assets/shader/{self.name}.frag", "r") as f:
-            self.frag_src = f.read()
-        with open(f"assets/shader/{self.name}.vert", "r") as f:
-            self.vert_src = f.read()
+        self.frag_src = load_frag_shader(self.name)
+        self.vert_src = load_vertex_shader(self.name)
 
     def _set_texarray(self): ...
 

@@ -2,17 +2,20 @@ import pygame
 import mili
 
 from constants import SIZE, SCREEN_RECT
-from zengl import Context
+from ogl_manager import OpenGLManager
 
 
 class UI:
-    def __init__(self, ctx: Context) -> None:
+    def __init__(self, manager: OpenGLManager) -> None:
         self.surface = pygame.Surface(SIZE, pygame.SRCALPHA)
         self.bg_col = "white"
-        self.changed = True
-        self.mili = mili.MILI(self.surface)
-        self.img = ctx.image(SIZE, "rgba8unorm")
 
+        self.changed = True
+
+        self.manager = manager
+        self.img = manager.ctx.image(SIZE, "rgba8unorm")
+
+        self.mili = mili.MILI(self.surface)
         self._set_sliders()
         self._ui()
 
@@ -122,6 +125,7 @@ class UI:
             self._draw()
             self.changed = True
             self.img.write(pygame.image.tobytes(self.surface, "RGBA", flipped=True))
+        self.img.blit(self.manager.sc_img)
 
     def _draw(self):
         self.mili.update_draw()

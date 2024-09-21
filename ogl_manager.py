@@ -2,25 +2,22 @@ import zengl
 from constants import SIZE
 import struct
 
+
 from ogl_drawer import OpenGLCircleDrawer
+from utils import load_shader_file
 
 
 class OpenGLManager:
     def __init__(self):
-        with open("assets/shader/wobble.vert", "r") as f:
-            vert_src = f.read()
-        with open("assets/shader/wobble.frag", "r") as f:
-            frag_src = f.read()
-
         self.ctx = zengl.context()
 
-        self.mask_img = self.ctx.image(SIZE, format="rgba8unorm")
-        self.mask_img.clear_value = (0, 255, 0, 255)
-        self.mask_img.clear()
+        self.sc_img = self.ctx.image(SIZE, format="rgba8unorm")
+        self.sc_img.clear_value = (0, 255, 0, 255)
+        self.sc_img.clear()
 
         self.pipeline = self.ctx.pipeline(
-            vertex_shader=vert_src,
-            fragment_shader=frag_src,
+            vertex_shader=load_shader_file("assets/shader/wobble.vert"),
+            fragment_shader=load_shader_file("assets/shader/wobble.frag"),
             framebuffer=None,  # =[self.mask_img],
             topology="triangle_strip",
             vertex_count=4,
@@ -32,7 +29,7 @@ class OpenGLManager:
                 {
                     "type": "sampler",
                     "binding": 0,
-                    "image": self.mask_img,
+                    "image": self.sc_img,
                     "min_filter": "nearest",
                     "mag_filter": "nearest",
                     "wrap_x": "clamp_to_edge",
@@ -65,7 +62,7 @@ class OpenGLManager:
     def set_drawers(self):
         self.circle_drawer = OpenGLCircleDrawer(
             self.ctx,
-            self.mask_img,
+            self.sc_img,
             (64, 64),
             tex_count=16,
             obj_count=100,
@@ -78,7 +75,7 @@ class OpenGLManager:
     def end_frame(self):
         self.pipeline.render()
         self.ctx.end_frame()
-        self.mask_img.clear()
+        self.sc_img.clear()
 
     def update_values(self, since_start: float):
         self.since_start = since_start

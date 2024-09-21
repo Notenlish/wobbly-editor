@@ -1,8 +1,5 @@
-from pathlib import Path
 import struct  # noqa
 from typing import Literal
-import sys
-import platform
 
 import pygame
 import zengl  # noqa
@@ -10,11 +7,10 @@ import asyncio
 
 # TODO: dont import if web
 
-from constants import SIZE, PG_SUPPORTED_IMG_FORMATS
+from constants import SIZE, WEB
 from ogl_manager import OpenGLManager
 from ui import UI
 
-WEB = sys.platform in ("emscripten", "wasi")
 
 if not WEB:
     import zengl_extras
@@ -27,9 +23,7 @@ class App:
         pygame.init()
         self.screen = pygame.display.set_mode(SIZE, pygame.OPENGL | pygame.DOUBLEBUF)
         self.ogl_manager = OpenGLManager()
-        self.ui = UI(self.ogl_manager.ctx)
-
-        self.input_img = pygame.Surface((100, 100), pygame.SRCALPHA)
+        self.ui = UI(self.ogl_manager)
 
         self.clock = pygame.time.Clock()
         self.dt = 0.0
@@ -53,14 +47,7 @@ class App:
                 if e.key == pygame.K_4:
                     self.mode = "weird"
             if e.type == pygame.DROPFILE:
-                filepath = Path(e.file)
-                if filepath.is_file:
-                    if filepath.suffix.lower() in PG_SUPPORTED_IMG_FORMATS:
-                        print("imported file")
-                        self.input_img = pygame.image.load(filepath.absolute())
-                    else:
-                        print("Unsupported Format!")
-                        # TODO: display to the user that its not supported
+                self.preview.load_image(e.file)
 
     def update(self):
         """self.frame_count += 1
@@ -108,7 +95,7 @@ class App:
         self.screen.fill("white")
 
         self.ui.render()
-        self.ui.img.blit(self.ogl_manager.mask_img)
+        # self.ui.img.blit(self.ogl_manager.mask_img)
 
         # drawable = black or white surf
         # self.ogl_manager.mask_img
@@ -120,7 +107,7 @@ class App:
             "rgba8unorm",
             pygame.image.tobytes(self.input_img, "RGBA", flipped=True),
         )
-        g.blit(self.ogl_manager.mask_img)
+        g.blit(self.ogl_manager.sc_img)
         self.ogl_manager.end_frame()
 
     async def run(self):

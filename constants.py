@@ -1,4 +1,11 @@
 from pygame import Rect
+import sys
+import platform
+
+WEB = sys.platform in ("emscripten", "wasi")
+
+WEB_MOBILE = WEB and platform.window.mobile_check()  # type:ignore
+WEB_TABLET = WEB and platform.window.mobile_tablet()  # type:ignore
 
 SIZE = WIDTH, HEIGHT = (640, 360)
 PAINT_SIZE = 8
