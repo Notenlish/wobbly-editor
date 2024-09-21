@@ -1,17 +1,25 @@
+from pathlib import Path
 import struct  # noqa
 from typing import Literal
+import sys
+import platform
 
 import pygame
 import zengl  # noqa
+import asyncio
 
 # TODO: dont import if web
-import zengl_extras
 
-from constants import SIZE, CLEAR_SIZE, PAINT_SIZE
+from constants import SIZE, PG_SUPPORTED_IMG_FORMATS
 from ogl_manager import OpenGLManager
 from ui import UI
 
-zengl_extras.init()
+WEB = sys.platform in ("emscripten", "wasi")
+
+if not WEB:
+    import zengl_extras
+
+    zengl_extras.init()
 
 
 class App:
@@ -21,10 +29,7 @@ class App:
         self.ogl_manager = OpenGLManager()
         self.ui = UI(self.ogl_manager.ctx)
 
-        self.drawable = pygame.Surface(SIZE)
-        self.drawable.fill("white")
-        self.color_surf = pygame.Surface(SIZE)
-        self.color_surf.fill("white")
+        self.input_img = pygame.Surface((100, 100), pygame.SRCALPHA)
 
         self.clock = pygame.time.Clock()
         self.dt = 0.0
@@ -47,9 +52,18 @@ class App:
                     self.mode = "small"
                 if e.key == pygame.K_4:
                     self.mode = "weird"
+            if e.type == pygame.DROPFILE:
+                filepath = Path(e.file)
+                if filepath.is_file:
+                    if filepath.suffix.lower() in PG_SUPPORTED_IMG_FORMATS:
+                        print("imported file")
+                        self.input_img = pygame.image.load(filepath.absolute())
+                    else:
+                        print("Unsupported Format!")
+                        # TODO: display to the user that its not supported
 
     def update(self):
-        self.frame_count += 1
+        """self.frame_count += 1
         self.since_start += self.dt
         self.ogl_manager.update_values(self.since_start)
 
@@ -87,23 +101,29 @@ class App:
             pygame.draw.circle(draw_on, color, end, radius)
             self.last_point = end
         else:
-            self.last_point = None
+            self.last_point = None"""
 
     def draw(self):
         # pygame
         self.screen.fill("white")
-        
+
         self.ui.render()
         self.ui.img.blit(self.ogl_manager.mask_img)
 
         # drawable = black or white surf
-        #self.ogl_manager.mask_img
-        
+        # self.ogl_manager.mask_img
+
         # zengl
         self.ogl_manager.new_frame()
+        g = self.ogl_manager.ctx.image(
+            self.input_img.size,
+            "rgba8unorm",
+            pygame.image.tobytes(self.input_img, "RGBA", flipped=True),
+        )
+        g.blit(self.ogl_manager.mask_img)
         self.ogl_manager.end_frame()
 
-    def run(self):
+    async def run(self):
         while True:
             self.input()
             self.update()
@@ -114,8 +134,9 @@ class App:
             # print(self.fps)
 
             pygame.display.flip()
+            await asyncio.sleep(0)
 
 
 if __name__ == "__main__":
     app = App()
-    app.run()
+    asyncio.run(app.run())

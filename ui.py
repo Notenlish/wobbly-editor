@@ -27,17 +27,14 @@ class UI:
     def _ui(self):
         m = self.mili
         m.start({"padx": 0})
-        with m.begin(SCREEN_RECT, {"padx": 0, "pady": 2, "clip_draw": False}) as main:
+        with m.begin(SCREEN_RECT, {"padx": 0, "pady": 2, "clip_draw": False}) as main:  # noqa F841
             with m.begin(
                 None,
                 style={"fillx": True, "filly": "25", "axis": "x", "clip_draw": False},
             ) as top:  # noqa
-                with m.begin(None, {"fillx": "25", "filly": "100"}) as file_drop_area:  # noqa
-                    m.rect({"color": "green", "padx": "10", "pady": "10"})
-
                 with m.begin(
                     None,
-                    {"fillx": "25", "filly": "100", "axis": "y", "padx": 0, "pady": 0},
+                    {"fillx": "45", "filly": "100", "axis": "y", "padx": 0, "pady": 0},
                 ) as preset_rows_container:  # noqa
                     for r in range(2):
                         with m.begin(
@@ -49,7 +46,7 @@ class UI:
                                 "padx": 0,
                                 "pady": 0,
                             },
-                        ) as preset_row:  # noqa
+                        ) as preset_row:  # noqa F841
                             for i in range(2):
                                 with m.begin(
                                     None,
@@ -59,21 +56,22 @@ class UI:
                                         "padx": 0,
                                         "pady": 0,
                                     },
-                                ) as preset:
+                                ) as preset:  # noqa F841
                                     m.rect(
                                         {
-                                            "color": "red",
-                                            "padx": 15,
+                                            "color": (150,) * 3,
+                                            "padx": 2,
                                             "pady": 2,
                                             "border_radius": 4,
+                                            "outline": 2,
                                         }
                                     )
 
                 with m.begin(
                     None,
-                    {"fillx": "50", "filly": "100", "clip_draw": False},
+                    {"fillx": "55", "filly": "100", "clip_draw": False},
                     get_data=True,
-                ) as sliders_container:
+                ) as sliders_container:  # noqa F841
                     slider_h = f"{100 / len(self.sliders)}"
                     for slider in self.sliders:
                         with m.begin(
