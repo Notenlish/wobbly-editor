@@ -10,7 +10,7 @@ import asyncio
 from constants import SIZE, WEB
 from ogl_manager import OpenGLManager
 from ui import UI
-
+from preview import Preview
 
 if not WEB:
     import zengl_extras
@@ -24,6 +24,7 @@ class App:
         self.screen = pygame.display.set_mode(SIZE, pygame.OPENGL | pygame.DOUBLEBUF)
         self.ogl_manager = OpenGLManager()
         self.ui = UI(self.ogl_manager)
+        self.preview = Preview(pygame.Rect(0, 0, 1, 1), self.ogl_manager)
 
         self.clock = pygame.time.Clock()
         self.dt = 0.0
@@ -50,6 +51,8 @@ class App:
                 self.preview.load_image(e.file)
 
     def update(self):
+        self.preview.update(self.ui.preview_rect)
+
         """self.frame_count += 1
         self.since_start += self.dt
         self.ogl_manager.update_values(self.since_start)
@@ -95,6 +98,7 @@ class App:
         self.screen.fill("white")
 
         self.ui.render()
+        self.preview.render()
         # self.ui.img.blit(self.ogl_manager.mask_img)
 
         # drawable = black or white surf
@@ -102,12 +106,6 @@ class App:
 
         # zengl
         self.ogl_manager.new_frame()
-        g = self.ogl_manager.ctx.image(
-            self.input_img.size,
-            "rgba8unorm",
-            pygame.image.tobytes(self.input_img, "RGBA", flipped=True),
-        )
-        g.blit(self.ogl_manager.sc_img)
         self.ogl_manager.end_frame()
 
     async def run(self):

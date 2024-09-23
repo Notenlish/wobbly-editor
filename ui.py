@@ -14,10 +14,12 @@ class UI:
 
         self.manager = manager
         self.img = manager.ctx.image(SIZE, "rgba8unorm")
+        self.preview_rect: pygame.Rect | None = None
 
         self.mili = mili.MILI(self.surface)
         self._set_sliders()
         self._ui()
+        self._draw()
 
     def _set_sliders(self):
         """To be called only once."""
@@ -106,8 +108,11 @@ class UI:
                 header="",
                 get_data=False,
             ) as bottom:  # noqa
-                with m.begin(None, style={"fillx": "80", "filly": "100"}) as preview_c:  # noqa F841
+                with m.begin(
+                    None, style={"fillx": "80", "filly": "100"}, get_data=True
+                ) as preview_c:  # noqa F841
                     m.rect({"color": "blue"})
+                    self.preview_rect = preview_c.absolute_rect  # type:ignore
                 with m.begin(None, style={"fillx": "20", "filly": "100"}) as exports:  # noqa
                     with m.begin(
                         None, style={"fillx": "100", "filly": "80"}

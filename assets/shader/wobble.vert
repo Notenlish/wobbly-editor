@@ -1,7 +1,5 @@
 #version 330 core
 
-out vec3 v_color;
-
 vec2 vertices[4] = vec2[](
     vec2(-1.0, -1.0),
     vec2(-1.0, 1.0),
